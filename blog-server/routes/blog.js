@@ -1,34 +1,43 @@
 var express = require('express');
-var mongoClient = require('mongodb').MongoClient;
+const commonmark = require('commonmark');
+var MongoClient = require('mongodb').MongoClient;
+const assert = require('assert');
 
 var router = express.Router();
 const url = 'mongodb://localhost:27017/'
-const client = new mongoClient(url);
+
+function parseMarkdown(s)
+{
+    var reader = new commonmark.Parser();
+    var writer = new commonmark.HtmlRenderer();
+    var parsed = reader.parse(s);
+    var result = writer.render(parsed);
+    return result;
+}
 
 /* GET home page. */
 router.get('/:username/:postid', (req, res, next) => {
     let username = req.params.username;
     let postid = parseInt(req.params.postid);
-    let query = { username: username, postid: postid };
+    var query = { username: username, postid: postid };
 
-    client.connect((err, db) => {
-        if(err) throw err;
+    MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
+        assert.equal(null, err);
         var dbo = db.db('cs144');
         dbo.collection('Posts').find(query).forEach((doc) => {
-	    // if(err) thr err;
+	    assert.equal(null, err);
 	    console.log('Found the following record.');
-	    console.log(doc.username);
-	    client.close();
-           
-            res.render('blog',{
+          
+            res.render('blog', {
 	        username: username,
 	        postid: postid,
-	        title: doc.title,
-	        body: doc.body
+	        title: parseMarkdown(doc.title),
+		body: parseMarkdown(doc.body)
             });
-	});
+        });
+	db.close();
+	res.status(404).send('Record is not found');
     });
-
 });
 
 router.get('/:username/', (req, res, next) => {
