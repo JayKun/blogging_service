@@ -1,20 +1,11 @@
 
 var express = require('express');
-const commonmark = require('commonmark');
 var MongoClient = require('mongodb').MongoClient;
 const assert = require('assert');
 
 var router = express.Router();
 const url = 'mongodb://localhost:27017/'
 
-function parseMarkdown(s)
-{
-    var reader = new commonmark.Parser();
-    var writer = new commonmark.HtmlRenderer();
-    var parsed = reader.parse(s);
-    var result = writer.render(parsed);
-    return result;
-}
 
 /* GET home page. */
 router.get('/:username/:postid', (req, res, next) => {
@@ -25,19 +16,18 @@ router.get('/:username/:postid', (req, res, next) => {
     MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
         assert.equal(null, err);
         var dbo = db.db('cs144');
-        dbo.collection('Posts').find(query).forEach((doc) => {
-	    assert.equal(null, err);
-	    console.log('Found the following record.');
-          
-            res.render('blog', {
-	        username: username,
-	        postid: postid,
-	        title: parseMarkdown(doc.title),
-		body: parseMarkdown(doc.body)
-            });
-        });
-	db.close();
-	res.status(404).send('Record is not found');
+        dbo.collection('Posts').findOne(query, {projection:{_id: 0, postid: 0, username: 0}}, (err, doc) => {
+	    if(err) console.log(err);
+	    if(doc){
+		doc.modified = new Date(doc.modified);
+		doc.created = new Date(doc.created);
+                res.json(doc);
+            }
+            else{
+	        res.status(404).send('Record is not found');
+	    }
+	});
+        db.close();	
     });
 });
 
@@ -49,7 +39,7 @@ router.get('/:username/', (req, res, next) => {
         assert.equal(null, err);
         var dbo = db.db('cs144');
 	
-        dbo.collection('Posts').find(query).toArray( (err, docs) => {
+        dbo.collection('Posts').find(query, {projection:{_id: 0, username: 0}}).toArray( (err, docs) => {
 	    assert.equal(null, err);
 	    console.log('Found the following records.');
 
