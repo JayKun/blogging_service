@@ -24,25 +24,31 @@ router.get('/:username/:postid', (req, res, next) => {
     MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
         assert.equal(null, err);
         var dbo = db.db('BlogServer');
-        dbo.collection('Posts').find(query).forEach((doc) => {
+        dbo.collection('Posts').findOne(query, (err, doc) => {
 	    assert.equal(null, err);
-	    console.log('Found the following record.');
-          
-            res.render('blog', {
-	        username: username,
-	        postid: postid,
-	        title: parseMarkdown(doc.title),
-		body: parseMarkdown(doc.body)
-            });
+	    console.log(doc);
+            if(doc){
+		doc.title = parseMarkdown(doc.title);
+		doc.body = parseMarkdown(doc.body);
+		res.render('blog', {posts: [doc], length: 1});
+		db.close();
+		return;
+            }
+	    else{
+	        db.close();
+	        res.status(404).send('Record is not found');
+            }
         });
-	db.close();
-	res.status(404).send('Record is not found');
     });
 });
 
-router.get('/:username/', (req, res, next) => {
-    let username = req.params.username;
-    var query = { username: username };
+router.get('/:username/:start?', (req, res, next) => {
+    var username = req.params.username;
+    if(req.params.start){
+        var start = req.params.start;
+    }
+    else var start = 0;
+    var query = { username: username, postid: {$gte: start}};
 
     MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
         assert.equal(null, err);
@@ -51,7 +57,20 @@ router.get('/:username/', (req, res, next) => {
         dbo.collection('Posts').find(query).toArray( (err, docs) => {
 	    assert.equal(null, err);
 	    console.log('Found the following records.');
-            if(docs.length > 0) res.json(docs);
+            if(docs.length > 0){
+		if (docs.length > 5){
+		    var length = 5;
+		}
+		else{
+		    var length = docs.length;
+		}
+		docs.forEach((doc)=>{
+		    doc.title = parseMarkdown(doc.title);
+		    doc.body = parseMarkdown(doc.body);
+		});
+		console.log(docs);
+	        res.render('blog', {posts: docs, username: username, length: length});
+            }
 	    else res.status(404).send('Records with this username are not found');
         });
 	db.close();
