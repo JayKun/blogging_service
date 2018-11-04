@@ -1,11 +1,9 @@
-
 var express = require('express');
 var MongoClient = require('mongodb').MongoClient;
 const assert = require('assert');
 
 var router = express.Router();
 const url = 'mongodb://localhost:27017/'
-
 
 /* GET home page. */
 router.get('/:username/:postid', (req, res, next) => {
