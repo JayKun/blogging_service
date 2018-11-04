@@ -11,6 +11,7 @@
               <form class='form-group' method='post' action='/login'>
                   Username: <input type='text' id='username' name='username' class='form-control'/>
 	          Password: <input type='password' id='password' name='password' class='form-control'/>
+		  <input type='hidden' id='redirect' name='redirect' value= <%= redirect %> />
 		  </br>
 		  <button class='btn btn-primary' type='submit'>Login</button>
               </form>

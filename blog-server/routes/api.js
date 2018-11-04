@@ -13,7 +13,7 @@ router.get('/:username/:postid', (req, res, next) => {
 
     MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
         assert.equal(null, err);
-        var dbo = db.db('cs144');
+        var dbo = db.db('BlogServer');
         dbo.collection('Posts').findOne(query, {projection:{_id: 0, postid: 0, username: 0}}, (err, doc) => {
 	    if(err) console.log(err);
 	    if(doc){
@@ -35,7 +35,7 @@ router.get('/:username/', (req, res, next) => {
 
     MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
         assert.equal(null, err);
-        var dbo = db.db('cs144');
+        var dbo = db.db('BlogServer');
 	
         dbo.collection('Posts').find(query, {projection:{_id: 0, username: 0}}).toArray( (err, docs) => {
 	    assert.equal(null, err);
