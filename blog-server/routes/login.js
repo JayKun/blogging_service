@@ -12,15 +12,14 @@ const url = 'mongodb://localhost:27017/'
 var urlencodedParser = bodyParser.urlencoded({ extended: true });
 
 /* GET home page. */
-router.get('/:redirect?', (req, res, next) => {
-    var redirect = req.params.redirect;
+router.get('/', (req, res, next) => {
+    var redirect = req.query.redirect;
     var context = { redirect: redirect };
     res.render('login', context);
 });
 
 router.post('/', urlencodedParser, (req, res, next) => {
     var username = req.body.username;
-    console.log('Username is ' + username);
     var password = req.body.password;
     var redirect = req.body.redirect;
     var query = { username: username };
@@ -36,7 +35,13 @@ router.post('/', urlencodedParser, (req, res, next) => {
 		bcrypt.compare(password, doc.password, (err, result) =>{
 		    if(result){
 	                console.log('User found');
-		        res.sendStatus(200, 'Authentication successful'); 
+			if(redirect) { 
+		            res.status(200, 'Authentication successful');
+			    res.redirect(redirect);
+			}
+			else{
+		            res.sendStatus(200, 'Authentication successful');
+		        }
 		    }
 		    else{
                         console.log('User not found');

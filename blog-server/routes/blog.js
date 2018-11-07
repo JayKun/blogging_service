@@ -42,12 +42,13 @@ router.get('/:username/:postid', (req, res, next) => {
     });
 });
 
-router.get('/:username/:start?', (req, res, next) => {
+router.get('/:username/', (req, res, next) => {
     var username = req.params.username;
-    if(req.params.start){
-        var start = req.params.start;
+    if(req.query.start){
+        var start = parseInt(req.query.start);
     }
     else var start = 0;
+    console.log(start);
     var query = { username: username, postid: {$gte: start}};
 
     MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
@@ -56,7 +57,6 @@ router.get('/:username/:start?', (req, res, next) => {
 	
         dbo.collection('Posts').find(query).toArray( (err, docs) => {
 	    assert.equal(null, err);
-	    console.log('Found the following records.');
             if(docs.length > 0){
 		if (docs.length > 5){
 		    var length = 5;
@@ -70,7 +70,9 @@ router.get('/:username/:start?', (req, res, next) => {
 		});
 	        res.render('blog', {posts: docs, username: username, length: length});
             }
-	    else res.status(404).send('Records with this username are not found');
+	    else{
+		res.status(404).send('Records with this username are not found');
+	    }
         });
 	db.close();
     });
