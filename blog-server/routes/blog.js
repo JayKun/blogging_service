@@ -68,7 +68,6 @@ router.get('/:username/:start?', (req, res, next) => {
 		    doc.title = parseMarkdown(doc.title);
 		    doc.body = parseMarkdown(doc.body);
 		});
-		console.log(docs);
 	        res.render('blog', {posts: docs, username: username, length: length});
             }
 	    else res.status(404).send('Records with this username are not found');
