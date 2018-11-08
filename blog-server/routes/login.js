@@ -2,6 +2,7 @@ var express = require('express');
 var MongoClient = require('mongodb').MongoClient;
 var router = express.Router();
 var bodyParser = require('body-parser');
+var cookieParser = require('cookie-parser');
 
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
@@ -32,34 +33,34 @@ router.post('/', urlencodedParser, (req, res, next) => {
         var dbo = db.db('BlogServer');
 	
         dbo.collection('Users').findOne(query, { projection:{_id: 0, username: 0} }, (err, doc) => {
-	    assert.equal(null, err);
-	    if(doc){
-		console.log(doc.password);
-		bcrypt.compare(password, doc.password, (err, result) =>{
-		    if(result){
-	                console.log('User found');
-			if(redirect) {
-			    var exp = Math.floor((new Date).getTime()/1000) + 7200;
-			    var token = jwt.sign({exp: exp, username: username}, secret);
-		            res.status(200, 'Authentication successful');
-			    res.redirect(redirect);
-			}
-			else{
-		            res.sendStatus(200, 'Authentication successful');
-		        }
-		    }
+	        assert.equal(null, err);
+	        if(doc){
+		        console.log(doc.password);
+		        bcrypt.compare(password, doc.password, (err, result) =>{
+			        if(result){
+				        console.log('User found');
+					    if(redirect) {
+						    var exp = Math.floor((new Date).getTime()/1000) + 7200;
+						    var token = jwt.sign({expiresIn: exp, username: username}, secret);
+							res.status(200, 'Authentication successful').cookie('jwt', token);
+						    res.redirect(redirect);
+					    }
+					    else{
+						 	res.sendStatus(200, 'Authentication successful');
+					    }
+					}
+					else{
+					    console.log('User not found');
+						res.status(401, 'Authentication unsuccessful');
+					    res.redirect('/login');
+					}
+			    });
+	        }
 		    else{
-                        console.log('User not found');
+		        console.log('User not found');
 		        res.status(401, 'Authentication unsuccessful');
-			res.redirect('/login');
+		        res.redirect('/login');
 		    }
-		});
-	   }
-           else{
-               console.log('User not found');
-	       res.status(401, 'Authentication unsuccessful');
-	       res.redirect('/login');
-	   }
         });
 	db.close();
     });
