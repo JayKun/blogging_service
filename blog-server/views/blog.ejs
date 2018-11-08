@@ -5,9 +5,18 @@
     <link rel='stylesheet' href='/stylesheets/style.css' />
   </head>
   <body>
-    <h1><%- title %></h1>
-    <p>PostId: <%= postid %></p>
-    <p>Username: <%= username %></p>
-    <p>Body: <%- body %></p>
+    <div class='container'>
+	<% for(let i = 0; i < length; i++) { %>
+         <div class='jumbotron'>
+            <h1><%- posts[i].title %></h1>
+            <p>Body: <%- posts[i].body %></p>
+	</div>
+    <% } %>
+
+    <% if(posts.length > 5) { var url = username + '?start=' + posts[posts.length-1].postid.toString() %>
+    <a href=<%= url %>> Next</a>
+    <% } %>
+    </div>
+
   </body>
 </html>

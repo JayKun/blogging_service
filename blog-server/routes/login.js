@@ -6,6 +6,9 @@ var bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
+const jwt = require('jsonwebtoken');
+const secret = "C-UFRaksvPKhx1txJYFcut3QGxsafPmwCY6SCly3G6c";
+
 const assert = require('assert');
 const url = 'mongodb://localhost:27017/'
 
@@ -35,7 +38,9 @@ router.post('/', urlencodedParser, (req, res, next) => {
 		bcrypt.compare(password, doc.password, (err, result) =>{
 		    if(result){
 	                console.log('User found');
-			if(redirect) { 
+			if(redirect) {
+			    var exp = Math.floor((new Date).getTime()/1000) + 7200;
+			    var token = jwt.sign({exp: exp, username: username}, secret);
 		            res.status(200, 'Authentication successful');
 			    res.redirect(redirect);
 			}
