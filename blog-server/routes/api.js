@@ -91,12 +91,18 @@ router.post('/:username/:postid', jsonencodedParser, (req, res, next) => {
 	var newDoc = {
                 username: username,
                 postid: postid,
-                title: title, body: body,
+                title: title,
+		body: body,
                 created: (new Date()).getTime(),
                 modified: (new Date()).getTime()
         };
         let query = { username: username, postid: postid };
         dbo.collection('Posts').findOne(query, (err, doc) => {
+	    if(err){
+	        console.log(err);
+		db.close();
+	    }
+
             if(doc){
                 res.status(400).send('Post with that username and postid already exists');
 		db.close();
@@ -126,7 +132,7 @@ router.put('/:username/:postid', jsonencodedParser, (req, res, next) => {
         dbo.collection('Posts').findOne(query, (err, doc) => {
             if(!doc){
                 res.status(400).send('Post with that username and postid does not exist');
-                return;
+	        db.close();
             }
             else{
                 dbo.collection('Posts').updateOne(
@@ -134,9 +140,9 @@ router.put('/:username/:postid', jsonencodedParser, (req, res, next) => {
                     { $set: { title: title, body: body, modified: modified } }
                 );
                 res.status(200).send('Record updated successfully');
+	        db.close();
             }
         });
-	db.close();
     });
 });
 
