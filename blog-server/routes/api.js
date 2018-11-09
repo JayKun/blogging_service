@@ -2,80 +2,98 @@ var express = require('express');
 var MongoClient = require('mongodb').MongoClient;
 var bodyParser = require('body-parser');
 var router = express.Router();
+var secret = 'C-UFRaksvPKhx1txJYFcut3QGxsafPmwCY6SCly3G6c';
+
+const jwt = require('jsonwebtoken');
 
 const assert = require('assert');
 const url = 'mongodb://localhost:27017/'
 
 var urlencodedParser = bodyParser.urlencoded({ extended: true });
 var jsonencodedParser = bodyParser.json();
-/*
-var clientToken = req.headers['cookie'].replace('jwt=', '');
-MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
-var dbo = db.db('Users');
+
+function authenticate(req) {
+        return new Promise((resolve, reject) => {
+            if(!req.headers['cookie']) return resolve(false);
+            let clientToken = req.headers['cookie'].replace('jwt=', '');
+	    jwt.verify(clientToken, secret, (err, decoded) => {
+            if(clientToken){
+                if(err){
+		    return reject(false);
+	        }
+	        let now = (new Date()).getTime() / 1000;
+	        let result = req.params.username == decoded.username && (now < decoded.expiresIn);
+	        console.log(result);
+	        return resolve(result);
+    	    }
+            else{
+                return resolve(false);
+            }
+        });   
+    });
 }
-if(clientToken){
-jwt.verify(clientToken, secret, (err, decoded) => {
-	if(err){
-	return res.status(500);
-}
-console.log(decoded);
-dbo.collection().findOne({username: decoded.username}, (err, doc)=> {
-	assert.equal(null, err);
-	if(doc){
-		
-	}
-	else{
-		res.status(401, 'Invalid Token');
-		return;
-	}
-});
-return res.status(200,'Token found');
-});
-}
-*/
-/* GET home page. */
+
 router.get('/:username/:postid', (req, res, next) => {
     let username = req.params.username;
     let postid = parseInt(req.params.postid);
     let query = { username: username, postid: postid };
-
-    MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
-        assert.equal(null, err);
-        var dbo = db.db('BlogServer');
-        dbo.collection('Posts').findOne(query, {projection:{_id: 0, postid: 0, username: 0}}, (err, doc) => {
-	    if(err) console.log(err);
-	    if(doc){
-		doc.modified = new Date(doc.modified);
-		doc.created = new Date(doc.created);
-                res.json(doc);
-            }
-            else{
-	        res.status(404).send('Record is not found');
-	    }
+    
+    let auth = authenticate(req);
+    if(!auth){
+        res.status(401).send('Authentication failed. Please login');
+	return;
+    }
+    else{
+	MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
+            assert.equal(null, err);
+            var dbo = db.db('BlogServer');
+            dbo.collection('Posts').findOne(query,
+            { projection:{ _id: 0, postid: 0, username: 0 } },
+            (err, doc) => {
+                if(err) console.log(err);
+                if(doc){
+		    doc.modified = new Date(doc.modified);
+	            doc.created = new Date(doc.created);
+	            res.json(doc);
+	        }
+                else{
+	            res.status(404).send('Record is not found');
+	        }
+            });
+	    db.close();	
 	});
-        db.close();	
-    });
+    }
 });
 
 router.get('/:username/', (req, res, next) => {
     let username = req.params.username;
     let query = { username: username };
 
-    MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
-        assert.equal(null, err);
-        let dbo = db.db('BlogServer');
-	
-        dbo.collection('Posts').find(query, { projection:{ _id: 0, username: 0 } }).toArray( (err, docs) => {
-	    assert.equal(null, err);
-	    console.log('Found the following records.');
+    let authPromise = authenticate(req);
+    authPromise.then(auth => {
+	console.log(auth);
+        if(!auth){
+            res.status(401).send('Authentication failed. Please login');
+	    return;
+        }
+        else{
+            MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
+                assert.equal(null, err);
+                let dbo = db.db('BlogServer');
+            
+                dbo.collection('Posts').find(query, { projection:{ _id: 0, username: 0 } }).toArray( (err, docs) => {
+                    assert.equal(null, err);
+                    console.log('Found the following records.');
 
-	    docs.forEach((doc)=>{
-	        doc.modified = new Date(doc.modified);
-		    doc.created = new Date(doc.created);
-	    });
-            res.json(docs);
-        });
-	db.close();
+                    docs.forEach((doc)=>{
+                        doc.modified = new Date(doc.modified);
+                        doc.created = new Date(doc.created);
+                    });
+                    res.json(docs);
+                });
+                db.close();
+           });
+        }
     });
 });
 
@@ -84,6 +102,10 @@ router.post('/:username/:postid', jsonencodedParser, (req, res, next) => {
     let postid = parseInt(req.params.postid);
     let title = req.body.title;
     let body = req.body.body;
+    
+    if(!title || !body){
+        req.status(400).send('No data specified in json');
+    }
 
     MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
         assert.equal(null, err);
@@ -125,6 +147,10 @@ router.put('/:username/:postid', jsonencodedParser, (req, res, next) => {
     let body = req.body.body;
     let modified = (new Date()).getTime();
     
+    if(!title || !body){
+        req.status(400).send('No data specified in json');
+    }
+
     MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
         assert.equal(null, err);
         let dbo = db.db('BlogServer');
