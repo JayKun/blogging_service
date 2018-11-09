@@ -1,7 +1,7 @@
 var express = require('express');
-const commonmark = require('commonmark');
+var commonmark = require('commonmark');
 var MongoClient = require('mongodb').MongoClient;
-const assert = require('assert');
+var assert = require('assert');
 
 var router = express.Router();
 const url = 'mongodb://localhost:27017/'
@@ -19,6 +19,10 @@ function parseMarkdown(s)
 router.get('/:username/:postid', (req, res, next) => {
     let username = req.params.username;
     let postid = parseInt(req.params.postid);
+    if(isNaN(postid)){
+        res.status(400).send('postid is not a number');
+        return;
+    }
     var query = { username: username, postid: postid };
 
     MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
@@ -49,6 +53,10 @@ router.get('/:username/', (req, res, next) => {
     }
     else var start = 0;
     console.log(start);
+    if(isNaN(start)){
+        res.status(400).send('start query field is not a number');
+        return;
+    }
     var query = { username: username, postid: {$gte: start}};
 
     MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {

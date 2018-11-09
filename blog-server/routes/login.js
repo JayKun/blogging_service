@@ -8,7 +8,7 @@ const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
 const jwt = require('jsonwebtoken');
-const secret = "C-UFRaksvPKhx1txJYFcut3QGxsafPmwCY6SCly3G6c";
+const secret = require('../config').secret;
 
 const assert = require('assert');
 const url = 'mongodb://localhost:27017/'

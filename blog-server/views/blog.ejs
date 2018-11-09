@@ -9,11 +9,11 @@
 	<% for(let i = 0; i < length; i++) { %>
          <div class='jumbotron'>
             <h1><%- posts[i].title %></h1>
-            <p>Body: <%- posts[i].body %></p>
+            <p><%- posts[i].body %></p>
 	</div>
     <% } %>
 
-    <% if(posts.length > 5) { var url = username + '?start=' + posts[posts.length-1].postid.toString() %>
+    <% if(posts.length > 5) { var url = username + '?start=' + (posts[length-1].postid + 1).toString() %>
     <a href=<%= url %>> Next</a>
     <% } %>
     </div>

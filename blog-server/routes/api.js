@@ -2,7 +2,7 @@ var express = require('express');
 var MongoClient = require('mongodb').MongoClient;
 var bodyParser = require('body-parser');
 var router = express.Router();
-var secret = 'C-UFRaksvPKhx1txJYFcut3QGxsafPmwCY6SCly3G6c';
+var secret = require('../config').secret;
 
 const jwt = require('jsonwebtoken');
 
@@ -20,12 +20,12 @@ function authenticate(req) {
 	    jwt.verify(clientToken, secret, (err, decoded) => {
             if(clientToken){
                 if(err){
-		    return reject(false);
-	        }
-	        let now = (new Date()).getTime() / 1000;
-	        let result = req.params.username == decoded.username && (now < decoded.expiresIn);
-	        console.log(result);
-	        return resolve(result);
+		            return resolve(false);
+	            }
+	            let now = (new Date()).getTime() / 1000;
+	            let result = req.params.username == decoded.username && (now < decoded.expiresIn);
+	            console.log(result);
+	            return resolve(result);
     	    }
             else{
                 return resolve(false);
@@ -37,13 +37,19 @@ function authenticate(req) {
 router.get('/:username/:postid', (req, res, next) => {
     let username = req.params.username;
     let postid = parseInt(req.params.postid);
+   
+    if(isNaN(postid)){
+        res.status(400).send('postid is not a number');
+        return;
+    }
+   
     let query = { username: username, postid: postid };
     
     let authPromise = authenticate(req);
-    authPromise.then( auth => {
+    authPromise.then(auth => {
         if(!auth){
             res.status(401).send('Authentication failed. Please login');
-	    return;
+	        return;
         }
         else{
 	        MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
@@ -54,8 +60,8 @@ router.get('/:username/:postid', (req, res, next) => {
                 (err, doc) => {
                     if(err) console.log(err);
                     if(doc){
-		                doc.modified = new Date(doc.modified);
-	                    doc.created = new Date(doc.created);
+		                doc.modified = new Date(doc.modified).getTime();
+	                    doc.created = new Date(doc.created).getTime();
 	                    res.json(doc);
 	                    db.close();	
 	                }
@@ -78,7 +84,7 @@ router.get('/:username/', (req, res, next) => {
 	console.log(auth);
         if(!auth){
             res.status(401).send('Authentication failed. Please login');
-	    return;
+	        return;
         }
         else{
             MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
@@ -89,10 +95,6 @@ router.get('/:username/', (req, res, next) => {
                     assert.equal(null, err);
                     console.log('Found the following records.');
 
-                    docs.forEach((doc)=>{
-                        doc.modified = new Date(doc.modified);
-                        doc.created = new Date(doc.created);
-                    });
                     res.json(docs);
                 });
                 db.close();
@@ -104,11 +106,16 @@ router.get('/:username/', (req, res, next) => {
 router.post('/:username/:postid', jsonencodedParser, (req, res, next) => {
     let username = req.params.username;
     let postid = parseInt(req.params.postid);
+    if(isNaN(postid)){
+        res.status(400).send('postid is not a number');
+        return;
+    }
     let title = req.body.title;
     let body = req.body.body;
-    
+    console.log(req.body); 
     if(!title || !body){
-        req.status(400).send('No data specified in json');
+        res.status(400).send('No data specified in json');
+        return;
     }
 
     let authPromise = authenticate(req);
@@ -158,12 +165,17 @@ router.post('/:username/:postid', jsonencodedParser, (req, res, next) => {
 router.put('/:username/:postid', jsonencodedParser, (req, res, next) => {
     let username = req.params.username;
     let postid = parseInt(req.params.postid);
+    if(isNaN(postid)){
+        res.status(400).send('postid is not a number');
+        return;
+    }
     let title = req.body.title;
     let body = req.body.body;
     let modified = (new Date()).getTime();
     
     if(!title || !body){
-        req.status(400).send('No data specified in json');
+        res.status(400).send('No data specified in json');
+        return;
     }
     
     let authPromise = authenticate(req);
@@ -200,6 +212,10 @@ router.put('/:username/:postid', jsonencodedParser, (req, res, next) => {
 router.delete('/:username/:postid', urlencodedParser, (req, res, next) => {
     let username = req.params.username;
     let postid = parseInt(req.params.postid);
+    if(isNaN(postid)){
+        res.status(400).send('postid is not a number');
+        return;
+    }
     let authPromise = authenticate(req);
 
     authPromise.then(auth => {
@@ -216,12 +232,12 @@ router.delete('/:username/:postid', urlencodedParser, (req, res, next) => {
                 dbo.collection('Posts').findOne(query, (err, doc) => {
                     if(!doc){
                         res.status(400).send('Post with that username and postid does not exist');
-                    db.close();
+                        db.close();
                     }
                     else{
                         dbo.collection('Posts').deleteOne(query);
                         res.status(204).send('Record deleted successfully');
-                    db.close();
+                        db.close();
                     }
                 });
             });
