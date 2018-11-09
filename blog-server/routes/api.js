@@ -16,6 +16,7 @@ function authenticate(req) {
         return new Promise((resolve, reject) => {
             if(!req.headers['cookie']) return resolve(false);
             let clientToken = req.headers['cookie'].replace('jwt=', '');
+	    
 	    jwt.verify(clientToken, secret, (err, decoded) => {
             if(clientToken){
                 if(err){
@@ -38,31 +39,34 @@ router.get('/:username/:postid', (req, res, next) => {
     let postid = parseInt(req.params.postid);
     let query = { username: username, postid: postid };
     
-    let auth = authenticate(req);
-    if(!auth){
-        res.status(401).send('Authentication failed. Please login');
-	return;
-    }
-    else{
-	MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
-            assert.equal(null, err);
-            var dbo = db.db('BlogServer');
-            dbo.collection('Posts').findOne(query,
-            { projection:{ _id: 0, postid: 0, username: 0 } },
-            (err, doc) => {
-                if(err) console.log(err);
-                if(doc){
-		    doc.modified = new Date(doc.modified);
-	            doc.created = new Date(doc.created);
-	            res.json(doc);
-	        }
-                else{
-	            res.status(404).send('Record is not found');
-	        }
-            });
-	    db.close();	
-	});
-    }
+    let authPromise = authenticate(req);
+    authPromise.then( auth => {
+        if(!auth){
+            res.status(401).send('Authentication failed. Please login');
+	    return;
+        }
+        else{
+	        MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
+                assert.equal(null, err);
+                var dbo = db.db('BlogServer');
+                dbo.collection('Posts').findOne(query,
+                { projection:{ _id: 0, postid: 0, username: 0 } },
+                (err, doc) => {
+                    if(err) console.log(err);
+                    if(doc){
+		                doc.modified = new Date(doc.modified);
+	                    doc.created = new Date(doc.created);
+	                    res.json(doc);
+	                    db.close();	
+	                }
+                    else{
+	                    res.status(404).send('Record is not found');
+	                    db.close();	
+	                }
+                });
+	        });
+        }
+   });
 });
 
 router.get('/:username/', (req, res, next) => {
@@ -107,36 +111,47 @@ router.post('/:username/:postid', jsonencodedParser, (req, res, next) => {
         req.status(400).send('No data specified in json');
     }
 
-    MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
-        assert.equal(null, err);
-        let dbo = db.db('BlogServer');
-	var newDoc = {
-                username: username,
-                postid: postid,
-                title: title,
-		body: body,
-                created: (new Date()).getTime(),
-                modified: (new Date()).getTime()
-        };
-        let query = { username: username, postid: postid };
-        dbo.collection('Posts').findOne(query, (err, doc) => {
-	    if(err){
-	        console.log(err);
-		db.close();
-	    }
+    let authPromise = authenticate(req);
+    authPromise.then(auth => {
+	    console.log(auth);
+        if(!auth){
+            res.status(401).send('Authentication failed. Please login');
+	        return;
+        }
+        else{
+            MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
+                assert.equal(null, err);
+                let dbo = db.db('BlogServer');
+	            let newDoc = {
+                    username: username,
+                    postid: postid,
+                    title: title,
+		            body: body,
+                    created: (new Date()).getTime(),
+                    modified: (new Date()).getTime()
+                };
+                let query = { username: username, postid: postid };
 
-            if(doc){
-                res.status(400).send('Post with that username and postid already exists');
-		db.close();
-            }
-            else{
-                dbo.collection('Posts').insertOne(newDoc, (err) => {
-		    if(err) console.log(err);
-                    res.status(201).send('Record created successfully');
-		    db.close();
+                dbo.collection('Posts').findOne(query, (err, doc) => {
+                    if(err){
+	                    console.log(err);
+		                db.close();
+                        return;
+	                }
+                    if(doc){
+                        res.status(400).send('Post with that username and postid already exists');
+		                db.close();
+                    }
+                    else{
+                        dbo.collection('Posts').insertOne(newDoc, (err) => {
+		                if(err) console.log(err);
+                        res.status(201).send('Record created successfully');
+		                db.close();
+                        });
+                    }
                 });
-            }
-        });
+            });
+        }
     });
 });
 
@@ -150,47 +165,67 @@ router.put('/:username/:postid', jsonencodedParser, (req, res, next) => {
     if(!title || !body){
         req.status(400).send('No data specified in json');
     }
-
-    MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
-        assert.equal(null, err);
-        let dbo = db.db('BlogServer');
-        let query = { username: username, postid: postid };
-        dbo.collection('Posts').findOne(query, (err, doc) => {
-            if(!doc){
-                res.status(400).send('Post with that username and postid does not exist');
-	        db.close();
-            }
-            else{
-                dbo.collection('Posts').updateOne(
-                    { 'username': username, 'postid': postid },
-                    { $set: { title: title, body: body, modified: modified } }
-                );
-                res.status(200).send('Record updated successfully');
-	        db.close();
-            }
-        });
-    });
+    
+    let authPromise = authenticate(req);
+    authPromise.then(auth => {
+	    console.log(auth);
+        if(!auth){
+            res.status(401).send('Authentication failed. Please login');
+	        return;
+        }
+        else{
+            MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
+                assert.equal(null, err);
+                let dbo = db.db('BlogServer');
+                let query = { username: username, postid: postid };
+                dbo.collection('Posts').findOne(query, (err, doc) => {
+                    if(!doc){
+                        res.status(400).send('Post with that username and postid does not exist');
+                        db.close();
+                    }
+                    else{
+                        dbo.collection('Posts').updateOne(
+                            { 'username': username, 'postid': postid },
+                            { $set: { title: title, body: body, modified: modified } }
+                        );
+                        res.status(200).send('Record updated successfully');
+                        db.close();
+                    }
+                });
+            });
+        }
+    });  
 });
 
 router.delete('/:username/:postid', urlencodedParser, (req, res, next) => {
     let username = req.params.username;
     let postid = parseInt(req.params.postid);
-    
-    MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
-        assert.equal(null, err);
-        let dbo = db.db('BlogServer');
-        let query = { username: username, postid: postid };
-        dbo.collection('Posts').findOne(query, (err, doc) => {
-            if(!doc){
-                res.status(400).send('Post with that username and postid does not exist');
-	        db.close();
-            }
-            else{
-                dbo.collection('Posts').deleteOne(query);
-                res.status(204).send('Record deleted successfully');
-	        db.close();
-            }
-        });
+    let authPromise = authenticate(req);
+
+    authPromise.then(auth => {
+	    console.log(auth);
+        if(!auth){
+            res.status(401).send('Authentication failed. Please login');
+	        return;
+        }
+        else{
+            MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
+                assert.equal(null, err);
+                let dbo = db.db('BlogServer');
+                let query = { username: username, postid: postid };
+                dbo.collection('Posts').findOne(query, (err, doc) => {
+                    if(!doc){
+                        res.status(400).send('Post with that username and postid does not exist');
+                    db.close();
+                    }
+                    else{
+                        dbo.collection('Posts').deleteOne(query);
+                        res.status(204).send('Record deleted successfully');
+                    db.close();
+                    }
+                });
+            });
+        }
     });
 });
 
