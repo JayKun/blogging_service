@@ -3,7 +3,6 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-var MongoClient = require('mongodb').MongoClient;
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -12,7 +11,6 @@ var apiRouter = require('./routes/api');
 var loginRouter = require('./routes/login');
 
 var app = express();
-const url = 'mongodb://localhost:27017/'
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -29,15 +27,6 @@ app.use('/users', usersRouter);
 app.use('/blog', blogRouter);
 app.use('/api', apiRouter);
 app.use('/login', loginRouter);
-
-var dbo;
-
-MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
-    dbo = db.db('BlogServer');
-    app.locals.dbo = dbo;
-    app.listen(3000);
-    console.log('Listening on port 3000');
-});
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

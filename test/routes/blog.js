@@ -24,19 +24,25 @@ router.get('/:username/:postid', (req, res, next) => {
         return;
     }
     var query = { username: username, postid: postid };
-    var dbo = req.app.locals.dbo;
-    dbo.collection('Posts').findOne(query, (err, doc) => {
+
+    MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
         assert.equal(null, err);
-        console.log(doc);
-        if(doc){
-            doc.title = parseMarkdown(doc.title);
-            doc.body = parseMarkdown(doc.body);
-            res.render('blog', {posts: [doc], length: 1});
-            return;
-        }
-        else{
-            res.status(404).send('Record is not found');
-        }
+        var dbo = db.db('BlogServer');
+        dbo.collection('Posts').findOne(query, (err, doc) => {
+	    assert.equal(null, err);
+	    console.log(doc);
+            if(doc){
+		doc.title = parseMarkdown(doc.title);
+		doc.body = parseMarkdown(doc.body);
+		res.render('blog', {posts: [doc], length: 1});
+		db.close();
+		return;
+            }
+	    else{
+	        db.close();
+	        res.status(404).send('Record is not found');
+            }
+        });
     });
 });
 
@@ -52,26 +58,31 @@ router.get('/:username/', (req, res, next) => {
         return;
     }
     var query = { username: username, postid: {$gte: start}};
-    var dbo = req.app.locals.dbo;
 
-    dbo.collection('Posts').find(query).toArray( (err, docs) => {
+    MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
         assert.equal(null, err);
-        if(docs.length > 0){
-            if (docs.length > 5){
-                var length = 5;
+        var dbo = db.db('BlogServer');
+	
+        dbo.collection('Posts').find(query).toArray( (err, docs) => {
+	    assert.equal(null, err);
+            if(docs.length > 0){
+		if (docs.length > 5){
+		    var length = 5;
+		}
+		else{
+		    var length = docs.length;
+		}
+		docs.forEach((doc)=>{
+		    doc.title = parseMarkdown(doc.title);
+		    doc.body = parseMarkdown(doc.body);
+		});
+	        res.render('blog', {posts: docs, username: username, length: length});
             }
-            else{
-                var length = docs.length;
-            }
-            docs.forEach((doc)=>{
-                doc.title = parseMarkdown(doc.title);
-                doc.body = parseMarkdown(doc.body);
-            });
-            res.render('blog', {posts: docs, username: username, length: length});
-        }
-        else{
-            res.status(404).send('Records with this username are not found');
-        }
+	    else{
+		res.status(404).send('Records with this username are not found');
+	    }
+        });
+	db.close();
     });
 });
 

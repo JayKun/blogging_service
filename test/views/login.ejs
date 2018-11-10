@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <% include partials/header %>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+  </head>
+  <body>
+      <section class='container'>
+	  <div class='well col-md-6'>
+	  <h2>Login</h2>
+              <form class='form-group' method='post' action='/login'>
+                  Username: <input type='text' id='username' name='username' class='form-control'/>
+	          Password: <input type='password' id='password' name='password' class='form-control'/>
+		  <input type='hidden' id='redirect' name='redirect' value= <%= redirect %> />
+		  </br>
+		  <button class='btn btn-primary' type='submit'>Login</button>
+              </form>
+	  </div>
+      </section>
+  </body>
+</html>

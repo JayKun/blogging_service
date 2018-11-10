@@ -52,25 +52,20 @@ router.get('/:username/:postid', (req, res, next) => {
 	        return;
         }
         else{
-	        MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
-                assert.equal(null, err);
-                var dbo = db.db('BlogServer');
-                dbo.collection('Posts').findOne(query,
-                { projection:{ _id: 0, postid: 0, username: 0 } },
-                (err, doc) => {
-                    if(err) console.log(err);
-                    if(doc){
-		                doc.modified = new Date(doc.modified).getTime();
-	                    doc.created = new Date(doc.created).getTime();
-	                    res.json(doc);
-	                    db.close();	
-	                }
-                    else{
-	                    res.status(404).send('Record is not found');
-	                    db.close();	
-	                }
-                });
-	        });
+            var dbo = req.app.locals.dbo;
+            dbo.collection('Posts').findOne(query,
+            { projection:{ _id: 0, postid: 0, username: 0 } },
+            (err, doc) => {
+                if(err) console.log(err);
+                if(doc){
+                    doc.modified = new Date(doc.modified).getTime();
+                    doc.created = new Date(doc.created).getTime();
+                    res.json(doc);
+                }
+                else{
+                    res.status(404).send('Record is not found');
+                }
+            });
         }
    });
 });
@@ -87,18 +82,13 @@ router.get('/:username/', (req, res, next) => {
 	        return;
         }
         else{
-            MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
+            var dbo = req.app.locals.dbo;
+            dbo.collection('Posts').find(query, { projection:{ _id: 0, username: 0 } }).toArray( (err, docs) => {
                 assert.equal(null, err);
-                let dbo = db.db('BlogServer');
-            
-                dbo.collection('Posts').find(query, { projection:{ _id: 0, username: 0 } }).toArray( (err, docs) => {
-                    assert.equal(null, err);
-                    console.log('Found the following records.');
+                console.log('Found the following records.');
 
-                    res.json(docs);
-                });
-                db.close();
-           });
+                res.json(docs);
+            });
         }
     });
 });
@@ -126,37 +116,31 @@ router.post('/:username/:postid', jsonencodedParser, (req, res, next) => {
 	        return;
         }
         else{
-            MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
-                assert.equal(null, err);
-                let dbo = db.db('BlogServer');
-	            let newDoc = {
-                    username: username,
-                    postid: postid,
-                    title: title,
-		            body: body,
-                    created: (new Date()).getTime(),
-                    modified: (new Date()).getTime()
-                };
-                let query = { username: username, postid: postid };
+            var dbo = req.app.locals.dbo;
+            let newDoc = {
+                username: username,
+                postid: postid,
+                title: title,
+                body: body,
+                created: (new Date()).getTime(),
+                modified: (new Date()).getTime()
+            };
+            let query = { username: username, postid: postid };
 
-                dbo.collection('Posts').findOne(query, (err, doc) => {
-                    if(err){
-	                    console.log(err);
-		                db.close();
-                        return;
-	                }
-                    if(doc){
-                        res.status(400).send('Post with that username and postid already exists');
-		                db.close();
-                    }
-                    else{
-                        dbo.collection('Posts').insertOne(newDoc, (err) => {
-		                if(err) console.log(err);
-                        res.status(201).send('Record created successfully');
-		                db.close();
-                        });
-                    }
-                });
+            dbo.collection('Posts').findOne(query, (err, doc) => {
+                if(err){
+                    console.log(err);
+                    return;
+                }
+                if(doc){
+                    res.status(400).send('Post with that username and postid already exists');
+                }
+                else{
+                    dbo.collection('Posts').insertOne(newDoc, (err) => {
+                    if(err) console.log(err);
+                    res.status(201).send('Record created successfully');
+                    });
+                }
             });
         }
     });
@@ -186,24 +170,19 @@ router.put('/:username/:postid', jsonencodedParser, (req, res, next) => {
 	        return;
         }
         else{
-            MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
-                assert.equal(null, err);
-                let dbo = db.db('BlogServer');
-                let query = { username: username, postid: postid };
-                dbo.collection('Posts').findOne(query, (err, doc) => {
-                    if(!doc){
-                        res.status(400).send('Post with that username and postid does not exist');
-                        db.close();
-                    }
-                    else{
-                        dbo.collection('Posts').updateOne(
-                            { 'username': username, 'postid': postid },
-                            { $set: { title: title, body: body, modified: modified } }
-                        );
-                        res.status(200).send('Record updated successfully');
-                        db.close();
-                    }
-                });
+            var dbo = req.app.locals.dbo;
+            let query = { username: username, postid: postid };
+            dbo.collection('Posts').findOne(query, (err, doc) => {
+                if(!doc){
+                    res.status(400).send('Post with that username and postid does not exist');
+                }
+                else{
+                    dbo.collection('Posts').updateOne(
+                        { 'username': username, 'postid': postid },
+                        { $set: { title: title, body: body, modified: modified } }
+                    );
+                    res.status(200).send('Record updated successfully');
+                }
             });
         }
     });  
@@ -225,21 +204,16 @@ router.delete('/:username/:postid', urlencodedParser, (req, res, next) => {
 	        return;
         }
         else{
-            MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
-                assert.equal(null, err);
-                let dbo = db.db('BlogServer');
-                let query = { username: username, postid: postid };
-                dbo.collection('Posts').findOne(query, (err, doc) => {
-                    if(!doc){
-                        res.status(400).send('Post with that username and postid does not exist');
-                        db.close();
-                    }
-                    else{
-                        dbo.collection('Posts').deleteOne(query);
-                        res.status(204).send('Record deleted successfully');
-                        db.close();
-                    }
-                });
+            var dbo = req.app.locals.dbo;
+            let query = { username: username, postid: postid };
+            dbo.collection('Posts').findOne(query, (err, doc) => {
+                if(!doc){
+                    res.status(400).send('Post with that username and postid does not exist');
+                }
+                else{
+                    dbo.collection('Posts').deleteOne(query);
+                    res.status(204).send('Record deleted successfully');
+                }
             });
         }
     });
