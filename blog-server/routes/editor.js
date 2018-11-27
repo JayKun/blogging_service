@@ -18,26 +18,30 @@ router.get('/', cookieParser, function(req, res, next) {
     if(req.cookies.jwt == null){
         res.redirect('/login?redirect=/editor/');
     }
-    let cookie = parseJWT(req.cookies.jwt)
-    console.log('Cookies:', cookie);
-    
-    let now = Date.now()/1000;
-    if(now >= cookie.expiresIn){
-        res.redirect('/login?redirect=/editor/');
-    }
-
-    var query = { username: cookie.username };
-    var dbo = req.app.locals.dbo;
-    dbo.collection('Users').findOne(query, (err, doc)=> {
-        assert.equal(null, err);
-        if(doc){
-            console.log('User authenticated');
-            staticMiddleware(req, res, next); 
-        }
-        else{
+    else {
+        let cookie = parseJWT(req.cookies.jwt)
+        console.log('Cookies:', cookie);
+        
+        let now = Date.now()/1000;
+        if(now >= cookie.expiresIn){
             res.redirect('/login?redirect=/editor/');
         }
-    }); 
+        
+        else {
+            var query = { username: cookie.username };
+            var dbo = req.app.locals.dbo;
+            dbo.collection('Users').findOne(query, (err, doc)=> {
+                assert.equal(null, err);
+                if(doc){
+                    console.log('User authenticated');
+                    staticMiddleware(req, res, next); 
+                }
+                else{
+                    res.redirect('/login?redirect=/editor/');
+               }
+            });
+        }
+    } 
 });
 
 module.exports = router;

@@ -74,7 +74,7 @@ var AppRoutingModule = /** @class */ (function () {
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "\n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IiIsImZpbGUiOiJhcHAvYXBwLmNvbXBvbmVudC5jc3MifQ== */"
+module.exports = ".title{\n    color: #070179\n}\n\n#app{\n    background: rgb(2,0,36);\n    background: linear-gradient(180deg, rgba(2,0,36,1) 0%, rgba(17,17,117,1) 35%);\n}\n\n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInNyYy9hcHAvYXBwLmNvbXBvbmVudC5jc3MiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUE7SUFDSSxjQUFjO0NBQ2pCOztBQUVEO0lBQ0ksd0JBQXdCO0lBQ3hCLDhFQUE4RTtDQUNqRiIsImZpbGUiOiJzcmMvYXBwL2FwcC5jb21wb25lbnQuY3NzIiwic291cmNlc0NvbnRlbnQiOlsiLnRpdGxle1xuICAgIGNvbG9yOiAjMDcwMTc5XG59XG5cbiNhcHB7XG4gICAgYmFja2dyb3VuZDogcmdiKDIsMCwzNik7XG4gICAgYmFja2dyb3VuZDogbGluZWFyLWdyYWRpZW50KDE4MGRlZywgcmdiYSgyLDAsMzYsMSkgMCUsIHJnYmEoMTcsMTcsMTE3LDEpIDM1JSk7XG59XG4iXX0= */"
 
 /***/ }),
 
@@ -85,7 +85,7 @@ module.exports = "\n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "<div class=\"container-fluid\">\n    <div class=\"row\">\n        <div class=\"col-md-4\">\n            <app-list></app-list>\n        </div>\n        <div class=\"col-md-8\">\n            <router-outlet></router-outlet>\n        </div>\n    </div>\n</div>\n"
+module.exports = "<div>\n<h1 class=\"title\">Markdown Editor</h1>\n</div>\n<div class=\"container-fluid\" id=\"app\">\n    <div class=\"row\">\n        <div class=\"col-md-4\" id=\"list\">\n            <app-list></app-list>\n        </div>\n        <div class=\"col-md-8\" id=\"outlet\">\n            <router-outlet></router-outlet>\n        </div>\n    </div>\n</div>\n"
 
 /***/ }),
 
@@ -382,7 +382,7 @@ var BlogService = /** @class */ (function () {
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "button{\n    margin-right: 5px;\n    width: 75px;\n}\n\n.badge{\n    font-size: 100%;\n    margin-top: 10px;\n}\n\ntextarea.form-control{\n    height: 150px;\n}\n\n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImFwcC9lZGl0L2VkaXQuY29tcG9uZW50LmNzcyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiQUFBQTtJQUNJLGtCQUFrQjtJQUNsQixZQUFZO0NBQ2Y7O0FBRUQ7SUFDSSxnQkFBZ0I7SUFDaEIsaUJBQWlCO0NBQ3BCOztBQUVEO0lBQ0ksY0FBYztDQUNqQiIsImZpbGUiOiJhcHAvZWRpdC9lZGl0LmNvbXBvbmVudC5jc3MiLCJzb3VyY2VzQ29udGVudCI6WyJidXR0b257XG4gICAgbWFyZ2luLXJpZ2h0OiA1cHg7XG4gICAgd2lkdGg6IDc1cHg7XG59XG5cbi5iYWRnZXtcbiAgICBmb250LXNpemU6IDEwMCU7XG4gICAgbWFyZ2luLXRvcDogMTBweDtcbn1cblxudGV4dGFyZWEuZm9ybS1jb250cm9se1xuICAgIGhlaWdodDogMTUwcHg7XG59XG4iXX0= */"
+module.exports = "button{\n    margin-right: 5px;\n    width: 75px;\n}\n\n.badge{\n    font-size: 100%;\n    margin-top: 10px;\n}\n\ntextarea.form-control{\n    height: 150px;\n}\n\n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInNyYy9hcHAvZWRpdC9lZGl0LmNvbXBvbmVudC5jc3MiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUE7SUFDSSxrQkFBa0I7SUFDbEIsWUFBWTtDQUNmOztBQUVEO0lBQ0ksZ0JBQWdCO0lBQ2hCLGlCQUFpQjtDQUNwQjs7QUFFRDtJQUNJLGNBQWM7Q0FDakIiLCJmaWxlIjoic3JjL2FwcC9lZGl0L2VkaXQuY29tcG9uZW50LmNzcyIsInNvdXJjZXNDb250ZW50IjpbImJ1dHRvbntcbiAgICBtYXJnaW4tcmlnaHQ6IDVweDtcbiAgICB3aWR0aDogNzVweDtcbn1cblxuLmJhZGdle1xuICAgIGZvbnQtc2l6ZTogMTAwJTtcbiAgICBtYXJnaW4tdG9wOiAxMHB4O1xufVxuXG50ZXh0YXJlYS5mb3JtLWNvbnRyb2x7XG4gICAgaGVpZ2h0OiAxNTBweDtcbn1cbiJdfQ== */"
 
 /***/ }),
 
@@ -393,7 +393,7 @@ module.exports = "button{\n    margin-right: 5px;\n    width: 75px;\n}\n\n.badge
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "<form class=\"form-group\">\n    <span class=\"badge badge-primary\">Title:</span> <input [(ngModel)]=\"post.title\" class=\"form-control\" type=\"text\" name=\"title\"/>\n    <span class=\"badge badge-info\">Body: </span> <textarea [(ngModel)]=\"post.body\" class=\"form-control\" name=\"body\" row=\"10\" cols=\"50\"></textarea>\n    <span class=\"badge badge-success\">Last Modified:</span> {{ post.created | date:'medium' }}\n    <br>\n    <br>\n    <button type=\"button\" (click)=\"deletePost()\" class=\"btn btn-danger\">Delete</button>\n    <button type=\"button\" (click)=\"updatePost()\" class=\"btn btn-success\">Save</button>\n    <a routerLink=\"../../preview/{{post.postid}}\" routerLinkActive=\"active\">\n        <button type=\"button\" (click)=\"updatePost()\" class=\"btn btn-secondary\">\n            Preview\n        </button>\n    </a>\n</form>\n"
+module.exports = "<form class=\"form-group\">\n    <span class=\"badge badge-primary\">Title:</span> <input [(ngModel)]=\"post.title\" class=\"form-control\" type=\"text\" name=\"title\"/>\n    <span class=\"badge badge-info\">Body: </span> <textarea [(ngModel)]=\"post.body\" class=\"form-control\" name=\"body\" row=\"10\" cols=\"50\"></textarea>\n    <span class=\"badge badge-success\">Last Modified:</span> <span class=\"badge badge-primary badge-pill\">{{ post.created | date:'medium' }}</span>\n    <br>\n    <br>\n    <button type=\"button\" (click)=\"deletePost()\" class=\"btn btn-danger\">Delete</button>\n    <button type=\"button\" (click)=\"updatePost()\" class=\"btn btn-success\">Save</button>\n    <a routerLink=\"../../preview/{{post.postid}}\" routerLinkActive=\"active\">\n        <button type=\"button\" (click)=\"updatePost()\" class=\"btn btn-secondary\">\n            Preview\n        </button>\n    </a>\n</form>\n"
 
 /***/ }),
 
@@ -479,7 +479,7 @@ var EditComponent = /** @class */ (function () {
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "#new-post{\n    padding-top: 20px;\n}\n\nli {\n    background-color: #e0e0e0;\n}\n\nli:hover {\n    background-color: #c4c4c4;\n}\n\na:hover {\n    text-decoration: none;\n}\n\n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImFwcC9saXN0L2xpc3QuY29tcG9uZW50LmNzcyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiQUFBQTtJQUNJLGtCQUFrQjtDQUNyQjs7QUFFRDtJQUNJLDBCQUEwQjtDQUM3Qjs7QUFFRDtJQUNJLDBCQUEwQjtDQUM3Qjs7QUFFRDtJQUNJLHNCQUFzQjtDQUN6QiIsImZpbGUiOiJhcHAvbGlzdC9saXN0LmNvbXBvbmVudC5jc3MiLCJzb3VyY2VzQ29udGVudCI6WyIjbmV3LXBvc3R7XG4gICAgcGFkZGluZy10b3A6IDIwcHg7XG59XG5cbmxpIHtcbiAgICBiYWNrZ3JvdW5kLWNvbG9yOiAjZTBlMGUwO1xufVxuXG5saTpob3ZlciB7XG4gICAgYmFja2dyb3VuZC1jb2xvcjogI2M0YzRjNDtcbn1cblxuYTpob3ZlciB7XG4gICAgdGV4dC1kZWNvcmF0aW9uOiBub25lO1xufVxuIl19 */"
+module.exports = "#new-post{\n    padding-top: 20px;\n}\n\nli {\n    background-color: #e0e0e0;\n}\n\nli:hover {\n    background-color: #c4c4c4;\n}\n\na:hover {\n    text-decoration: none;\n}\n\n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInNyYy9hcHAvbGlzdC9saXN0LmNvbXBvbmVudC5jc3MiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUE7SUFDSSxrQkFBa0I7Q0FDckI7O0FBRUQ7SUFDSSwwQkFBMEI7Q0FDN0I7O0FBRUQ7SUFDSSwwQkFBMEI7Q0FDN0I7O0FBRUQ7SUFDSSxzQkFBc0I7Q0FDekIiLCJmaWxlIjoic3JjL2FwcC9saXN0L2xpc3QuY29tcG9uZW50LmNzcyIsInNvdXJjZXNDb250ZW50IjpbIiNuZXctcG9zdHtcbiAgICBwYWRkaW5nLXRvcDogMjBweDtcbn1cblxubGkge1xuICAgIGJhY2tncm91bmQtY29sb3I6ICNlMGUwZTA7XG59XG5cbmxpOmhvdmVyIHtcbiAgICBiYWNrZ3JvdW5kLWNvbG9yOiAjYzRjNGM0O1xufVxuXG5hOmhvdmVyIHtcbiAgICB0ZXh0LWRlY29yYXRpb246IG5vbmU7XG59XG4iXX0= */"
 
 /***/ }),
 
@@ -559,7 +559,7 @@ var ListComponent = /** @class */ (function () {
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "\n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IiIsImZpbGUiOiJhcHAvcHJldmlldy9wcmV2aWV3LmNvbXBvbmVudC5jc3MifQ== */"
+module.exports = "h1, p {\n    color: white;\n}\n\n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInNyYy9hcHAvcHJldmlldy9wcmV2aWV3LmNvbXBvbmVudC5jc3MiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUE7SUFDSSxhQUFhO0NBQ2hCIiwiZmlsZSI6InNyYy9hcHAvcHJldmlldy9wcmV2aWV3LmNvbXBvbmVudC5jc3MiLCJzb3VyY2VzQ29udGVudCI6WyJoMSwgcCB7XG4gICAgY29sb3I6IHdoaXRlO1xufVxuIl19 */"
 
 /***/ }),
 
@@ -570,7 +570,7 @@ module.exports = "\n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "<a routerLink=\"../../edit/{{postid}}\" routerLinkActive=\"active\">\n    <button class=\"btn btn-warning\">\n    Edit\n    </button>\n</a>\n\n<h1 [innerHtml]= title></h1>\n<p [innerHtml]=body></p>\n\n"
+module.exports = "<br>\n<a routerLink=\"../../edit/{{postid}}\" routerLinkActive=\"active\">\n    <button class=\"btn btn-warning\">\n    Edit\n    </button>\n</a>\n\n<h1 [innerHtml]= title></h1>\n<p [innerHtml]= body></p>\n\n"
 
 /***/ }),
 
