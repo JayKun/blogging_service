@@ -10,6 +10,7 @@ var usersRouter = require('./routes/users');
 var blogRouter = require('./routes/blog');
 var apiRouter = require('./routes/api');
 var loginRouter = require('./routes/login');
+var editorRouter = require('./routes/editor');
 
 var app = express();
 const url = 'mongodb://localhost:27017/'
@@ -22,9 +23,10 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use('/', indexRouter);
+app.use('/editor', editorRouter);
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/blog', blogRouter);
 app.use('/api', apiRouter);

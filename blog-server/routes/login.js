@@ -50,14 +50,14 @@ router.post('/', urlencodedParser, (req, res, next) => {
                 else{
                     console.log('User not found');
                     res.status(401, 'Authentication unsuccessful');
-                    res.redirect('/login');
+                    res.render('login', { redirect: '' });
                 }
             });
         }
         else{
             console.log('User not found');
             res.status(401, 'Authentication unsuccessful');
-            res.redirect('/login');
+            res.render('login', { redirect: '' });
         }
     });
 });

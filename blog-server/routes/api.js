@@ -24,7 +24,6 @@ function authenticate(req) {
 	            }
 	            let now = (new Date()).getTime() / 1000;
 	            let result = req.params.username == decoded.username && (now < decoded.expiresIn);
-	            console.log(result);
 	            return resolve(result);
     	    }
             else{
@@ -76,7 +75,6 @@ router.get('/:username/', (req, res, next) => {
 
     let authPromise = authenticate(req);
     authPromise.then(auth => {
-	console.log(auth);
         if(!auth){
             res.status(401).send('Authentication failed. Please login');
 	        return;
@@ -102,15 +100,13 @@ router.post('/:username/:postid', jsonencodedParser, (req, res, next) => {
     }
     let title = req.body.title;
     let body = req.body.body;
-    console.log(req.body); 
-    if(!title || !body){
+    
+    if(title == null|| body == null){
         res.status(400).send('No data specified in json');
         return;
     }
-
     let authPromise = authenticate(req);
     authPromise.then(auth => {
-	    console.log(auth);
         if(!auth){
             res.status(401).send('Authentication failed. Please login');
 	        return;
@@ -156,15 +152,14 @@ router.put('/:username/:postid', jsonencodedParser, (req, res, next) => {
     let title = req.body.title;
     let body = req.body.body;
     let modified = (new Date()).getTime();
-    
-    if(!title || !body){
+
+    if(title == null || body == null){
         res.status(400).send('No data specified in json');
         return;
     }
     
     let authPromise = authenticate(req);
     authPromise.then(auth => {
-	    console.log(auth);
         if(!auth){
             res.status(401).send('Authentication failed. Please login');
 	        return;
@@ -198,7 +193,6 @@ router.delete('/:username/:postid', urlencodedParser, (req, res, next) => {
     let authPromise = authenticate(req);
 
     authPromise.then(auth => {
-	    console.log(auth);
         if(!auth){
             res.status(401).send('Authentication failed. Please login');
 	        return;
