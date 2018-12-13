@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <% include partials/header %>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+  </head>
+  <body>
+    <div class='container'>
+	<% for(let i = 0; i < length; i++) { %>
+         <div class='jumbotron'>
+            <h1><%- posts[i].title %></h1>
+            <p><%- posts[i].body %></p>
+	</div>
+    <% } %>
+
+    <% if(posts.length > 5) { var url = username + '?start=' + (posts[length-1].postid + 1).toString() %>
+    <a href=<%= url %>> Next</a>
+    <% } %>
+    </div>
+
+  </body>
+</html>
